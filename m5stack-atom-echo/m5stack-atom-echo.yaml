@@ -337,6 +337,7 @@ select:
             - micro_wake_word.start
 
 micro_wake_word:
+  model: https://github.com/esphome/micro-wake-word-models/blob/main/models/v2/hey_jarvis.json
   on_wake_word_detected:
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
