@@ -116,10 +116,18 @@
     <div id="date"></div>
     <script>
         // Christmas mode configuration
-        const FORCE_CHRISTMAS_MODE = false; // Set to true to force Christmas mode
+        function getChristmasModeFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const christmasParam = urlParams.get('christmas');
+            if (christmasParam !== null) {
+                return christmasParam === 'true' || christmasParam === '1';
+            }
+            return null;
+        }
 
         function isChristmasPeriod() {
-            if (FORCE_CHRISTMAS_MODE) return true;
+            const forceMode = getChristmasModeFromURL();
+            if (forceMode !== null) return forceMode;
 
             const now = new Date();
             const month = now.getMonth() + 1; // 1-12
