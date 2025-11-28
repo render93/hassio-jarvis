@@ -16,13 +16,19 @@
             color: rgb(193, 193, 193);
             font-family: Arial, sans-serif;
             text-align: center;
+            overflow: hidden;
+            position: relative;
         }
         #time {
             font-size: 160px;
             font-weight: 500;
+            position: relative;
+            z-index: 10;
         }
         #date {
             font-size: 50px;
+            position: relative;
+            z-index: 10;
         }
         .blink {
             animation: blink 1s steps(1, start) infinite;
@@ -32,12 +38,138 @@
                 opacity: 0;
             }
         }
+
+        /* Christmas mode styles */
+        body.christmas-mode {
+            background: linear-gradient(180deg, #0a1f3d 0%, #1a0a1f 100%);
+        }
+
+        body.christmas-mode #time,
+        body.christmas-mode #date {
+            text-shadow:
+                0 0 10px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.3),
+                0 0 30px rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        /* Snowflakes */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            animation: fall linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Christmas lights */
+        .lights {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 5;
+        }
+
+        .light {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: glow 1.5s ease-in-out infinite;
+        }
+
+        .light:nth-child(1) { background-color: #ff0000; animation-delay: 0s; }
+        .light:nth-child(2) { background-color: #00ff00; animation-delay: 0.3s; }
+        .light:nth-child(3) { background-color: #0000ff; animation-delay: 0.6s; }
+        .light:nth-child(4) { background-color: #ffff00; animation-delay: 0.9s; }
+        .light:nth-child(5) { background-color: #ff00ff; animation-delay: 1.2s; }
+        .light:nth-child(6) { background-color: #00ffff; animation-delay: 0.15s; }
+        .light:nth-child(7) { background-color: #ff8800; animation-delay: 0.45s; }
+        .light:nth-child(8) { background-color: #ff0088; animation-delay: 0.75s; }
+
+        @keyframes glow {
+            0%, 100% {
+                opacity: 0.5;
+                box-shadow: 0 0 5px currentColor;
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="time"></div>
     <div id="date"></div>
     <script>
+        // Christmas mode configuration
+        const FORCE_CHRISTMAS_MODE = false; // Set to true to force Christmas mode
+
+        function isChristmasPeriod() {
+            if (FORCE_CHRISTMAS_MODE) return true;
+
+            const now = new Date();
+            const month = now.getMonth() + 1; // 1-12
+            const day = now.getDate();
+
+            // From December 8th to January 6th, inclusive
+            if (month === 12 && day >= 8) return true;
+            if (month === 1 && day <= 6) return true;
+
+            return false;
+        }
+
+        function initChristmasMode() {
+            if (!isChristmasPeriod()) return;
+
+            document.body.classList.add('christmas-mode');
+
+            // Create Christmas lights
+            const lights = document.createElement('div');
+            lights.className = 'lights';
+            for (let i = 0; i < 8; i++) {
+                const light = document.createElement('div');
+                light.className = 'light';
+                lights.appendChild(light);
+            }
+            document.body.appendChild(lights);
+
+            // Create snowflakes
+            for (let i = 0; i < 50; i++) {
+                createSnowflake();
+            }
+        }
+
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.innerHTML = '*';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            snowflake.style.animationDelay = Math.random() * 5 + 's';
+            snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+            snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+            document.body.appendChild(snowflake);
+
+            // Recreate snowflake when animation ends
+            snowflake.addEventListener('animationiteration', () => {
+                snowflake.style.left = Math.random() * 100 + 'vw';
+            });
+        }
+
         function updateTime() {
             const now = new Date();
             let hours = now.getHours().toString().padStart(2, '0');
@@ -45,11 +177,13 @@
             let separator = '<span class="blink">:</span>';
             const timeString = `${hours}${separator}${minutes}`;
             const dateString = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-            
+
             document.getElementById('time').innerHTML = timeString;
             document.getElementById('date').textContent = dateString;
         }
-        
+
+        // Initialize
+        initChristmasMode();
         updateTime();
         setInterval(updateTime, 1000);
     </script>
